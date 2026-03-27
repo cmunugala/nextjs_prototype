@@ -1,0 +1,16 @@
+Animal,Countries,Confidence
+Lion,Brazil,0.87
+Tiger,Thailand,0.8
+Elephant,"France, Japan, Antarctica",0.85
+Giraffe,"Thailand, France",0.98
+Kangaroo,"USA, Brazil, Japan",0.89
+Panda,"Egypt, Thailand, USA",0.96
+Penguin,"Egypt, Brazil, South Africa",0.76
+Wolf,Japan,0.78
+Zebra,"Japan, France, Canada",0.84
+Koala,"India, Japan",0.97
+Eagle,"Brazil, Mexico",0.75
+Shark,Thailand,0.84
+Dolphin,"Canada, Antarctica",0.78
+Gorilla,"China, Japan, Australia",0.98
+Cheetah,"Australia, India, Antarctica",0.77

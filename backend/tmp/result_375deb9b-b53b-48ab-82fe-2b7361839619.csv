@@ -1,0 +1,51 @@
+Animal,Countries,Confidence Scores
+Lion,"Papua New Guinea, Norway","0.7, 0.9"
+Tiger,"Kenya, Canada","0.88, 0.87"
+Elephant,"Turkey, Australia, Greenland","0.82, 0.86, 0.87"
+Giraffe,"Sweden, Panama","0.91, 0.82"
+Kangaroo,"Iceland, Papua New Guinea","0.78, 0.86"
+Panda,,
+Penguin,"Madagascar, Italy","0.98, 0.81"
+Wolf,"Kazakhstan, Nigeria","0.88, 0.76"
+Zebra,Switzerland,0.97
+Koala,"South Africa, Sweden","0.7, 0.89"
+Eagle,"Kazakhstan, Greece","0.78, 0.76"
+Shark,Argentina,0.94
+Dolphin,South Korea,0.92
+Gorilla,"Greenland, Germany, Indonesia","0.71, 0.93, 0.87"
+Cheetah,"Nigeria, Ethiopia","0.74, 0.89"
+Jaguar,"Tanzania, Colombia, Nepal","0.97, 0.87, 0.9"
+Lemur,Panama,0.81
+Ostrich,Turkey,0.82
+Platypus,Uruguay,0.75
+Red Panda,Egypt,0.79
+Arctic Fox,Morocco,0.72
+Brown Bear,Norway,0.85
+Chimpanzee,"France, Argentina","0.73, 0.87"
+Flamingo,"Panama, China, South Africa","0.81, 0.73, 0.83"
+Hippopotamus,South Korea,0.81
+Iguana,"Argentina, France","0.88, 0.98"
+Komodo Dragon,"Panama, Argentina","0.81, 0.9"
+Lynx,Kenya,0.8
+Meerkat,"Tanzania, Vietnam","0.77, 0.79"
+Narwhal,"Chile, Peru","0.85, 0.72"
+Okapi,"Peru, Argentina","0.8, 0.77"
+Polar Bear,China,0.88
+Quokka,Costa Rica,0.88
+Rhinoceros,"Canada, South Africa, Argentina","0.93, 0.9, 0.84"
+Snow Leopard,"Norway, Bolivia, Kazakhstan","0.72, 0.85, 0.83"
+Tasmanian Devil,"Russia, Uruguay, Canada","0.89, 0.9, 0.71"
+Utter,"Indonesia, Greece, South Africa","0.81, 0.97, 0.95"
+Vulture,"Mexico, India, Vietnam","0.74, 0.9, 0.9"
+Walrus,"Nigeria, South Africa","0.81, 0.77"
+X-ray Tetra,China,0.99
+Yak,Nepal,0.76
+Zebu,"USA, Mongolia","0.74, 0.72"
+Armadillo,"Morocco, Paraguay, Colombia","0.89, 0.93, 0.89"
+Bison,"Argentina, Greece","0.95, 0.84"
+Capybara,"Paraguay, Indonesia","0.95, 0.84"
+Dingo,Ecuador,0.76
+Echidna,Fiji,0.94
+Falcon,"Sweden, Iceland","0.73, 0.87"
+Grizzly Bear,"Antarctica, Egypt, Madagascar","0.83, 0.83, 0.84"
+Honey Badger,"India, Italy","0.81, 0.89"
