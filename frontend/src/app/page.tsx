@@ -1,25 +1,43 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Workflow from './components/Workflow';
-import { LayoutGrid, Database, FileText, BarChart3, Home as HomeIcon, ArrowRight, Activity, Clock, History, CheckCircle2, Timer, AlertCircle } from 'lucide-react';
+import { Database, BarChart3, Home as HomeIcon, ArrowRight, Activity, Clock, History, CheckCircle2, Timer, AlertCircle, Loader2 } from 'lucide-react';
 
 const WORKFLOWS = [
   { id: 'workflow_1', name: 'Animal Finder', description: 'Map animals to countries with confidence scoring.', icon: <BarChart3 className="w-5 h-5" /> },
-  { id: 'workflow_2', name: 'Classification Workflow', description: 'Categorize records into predefined classes.', icon: <LayoutGrid className="w-5 h-5" /> },
-  { id: 'workflow_3', name: 'Summary Workflow', description: 'Generate concise executive summaries.', icon: <FileText className="w-5 h-5" /> },
 ];
 
-const DUMMY_HISTORY = [
-  { id: 'job_8821', workflow: 'Analysis Workflow', timestamp: '2026-03-25 14:20', status: 'completed' },
-  { id: 'job_8819', workflow: 'Summary Workflow', timestamp: '2026-03-25 12:05', status: 'completed' },
-  { id: 'job_8815', workflow: 'Classification Workflow', timestamp: '2026-03-24 16:45', status: 'failed' },
-  { id: 'job_8810', workflow: 'Analysis Workflow', timestamp: '2026-03-24 09:12', status: 'completed' },
-  { id: 'job_8802', workflow: 'Analysis Workflow', timestamp: '2026-03-23 11:30', status: 'completed' },
-];
+const API_BASE_URL = 'http://localhost:8000';//this is what we send requests to from the frontend (backend)
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home');
+  const [history, setHistory] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []); //essentially runs this exactly once after the page has loaded
+
+  useEffect(() => {
+    if (isMounted && activeTab === 'history') {
+        fetchHistory();
+    }
+  }, [activeTab, isMounted]);
+
+  const fetchHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/history`);
+        const data = await res.json();
+        setHistory(data);
+    } catch (error) {
+        console.error("Failed to fetch history:", error);
+    } finally {
+        setIsLoadingHistory(false);
+    }
+  };
 
   const renderHome = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -33,7 +51,7 @@ export default function Home() {
             onClick={() => setActiveTab(WORKFLOWS[0].id)}
             className="flex items-center gap-2 bg-mongo-green text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-800 transition-all shadow-sm"
           >
-            Launch Analysis <ArrowRight className="w-4 h-4" />
+            Launch Animal Finder <ArrowRight className="w-4 h-4" />
           </button>
         </div>
         <div className="absolute right-[-20px] top-[-20px] opacity-5">
@@ -54,14 +72,14 @@ export default function Home() {
                 <Clock className="w-5 h-5 text-amber-600" />
             </div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Last Sync</p>
-            <p className="text-xl font-bold text-slate-900">2m ago</p>
+            <p className="text-xl font-bold text-slate-900">Live</p>
         </div>
         <div className="p-6 border border-slate-100 rounded-xl bg-white shadow-sm">
             <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center mb-4">
                 <Database className="w-5 h-5 text-green-600" />
             </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Active Jobs</p>
-            <p className="text-xl font-bold text-slate-900">0</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Jobs</p>
+            <p className="text-xl font-bold text-slate-900">{history.length}</p>
         </div>
       </div>
 
@@ -92,51 +110,68 @@ export default function Home() {
 
   const renderHistory = () => (
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm animate-in fade-in duration-500">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-slate-50 border-b border-slate-200">
-            <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Job ID</th>
-            <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Workflow</th>
-            <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Timestamp</th>
-            <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {DUMMY_HISTORY.map((job) => (
-            <tr key={job.id} className="hover:bg-slate-50/50 transition-colors group">
-              <td className="px-6 py-4">
-                <span className="text-sm font-bold text-mongo-orange font-mono tracking-tighter bg-mongo-orange/5 px-2 py-1 rounded">
-                    {job.id}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-sm font-medium text-slate-700">{job.workflow}</td>
-              <td className="px-6 py-4 text-sm text-slate-400">{job.timestamp}</td>
-              <td className="px-6 py-4 text-right">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide
-                  ${job.status === 'completed' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}
-                `}>
-                  {job.status === 'completed' ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                  {job.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex justify-center">
-          <button className="text-[10px] font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors flex items-center gap-2">
-              <Timer className="w-3 h-3" /> View Full Archive
-          </button>
-      </div>
+      {isLoadingHistory ? (
+        <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <Loader2 className="w-8 h-8 animate-spin mb-4" />
+            <p className="text-sm font-medium">Querying SQLite Database...</p>
+        </div>
+      ) : (
+        <>
+            <table className="w-full text-left border-collapse">
+                <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Job ID</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Filename</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Created At</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Status</th>
+                </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                {history.map((job) => (
+                    <tr key={job.job_id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-6 py-4">
+                        <span className="text-sm font-bold text-mongo-orange font-mono tracking-tighter bg-mongo-orange/5 px-2 py-1 rounded">
+                            {job.job_id.substring(0, 8)}...
+                        </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-slate-700">{job.filename}</td>
+                    <td className="px-6 py-4 text-sm text-slate-400">{job.created_at}</td>
+                    <td className="px-6 py-4 text-right">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide
+                        ${job.status === 'completed' ? 'bg-green-50 text-green-700' : (job.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700')}
+                        `}>
+                        {job.status === 'completed' ? <CheckCircle2 className="w-3 h-3" /> : (job.status === 'failed' ? <AlertCircle className="w-3 h-3" /> : <Loader2 className="w-3 h-3 animate-spin" />)}
+                        {job.status}
+                        </span>
+                    </td>
+                    </tr>
+                ))}
+                {history.length === 0 && (
+                    <tr>
+                        <td colSpan={4} className="px-6 py-20 text-center text-slate-400 text-sm italic">
+                            No workflow history found in the local database.
+                        </td>
+                    </tr>
+                )}
+                </tbody>
+            </table>
+            <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex justify-center">
+                <button 
+                    onClick={fetchHistory}
+                    className="text-[10px] font-bold text-slate-400 hover:text-mongo-sage uppercase tracking-widest transition-colors flex items-center gap-2"
+                >
+                    <Timer className="w-3 h-3" /> Refresh Logs
+                </button>
+            </div>
+        </>
+      )}
     </div>
   );
 
   return (
     <div className="flex min-h-screen bg-white font-sans text-slate-900 relative">
-      {/* Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-mongo-orange z-50 shadow-sm opacity-90"></div>
 
-      {/* Sidebar */}
       <aside className="w-72 bg-mongo-mist flex flex-col border-r border-slate-200 pt-1">
         <div className="p-8 pb-4 flex items-center gap-3">
           <div className="w-10 h-10 bg-mongo-green rounded-lg flex items-center justify-center shadow-sm">
@@ -185,11 +220,6 @@ export default function Home() {
                 {wf.icon}
               </div>
               <span className="text-sm">{wf.name}</span>
-              {wf.id === 'workflow_1' && (
-                <span className="ml-auto text-[9px] bg-mongo-orange/10 text-mongo-orange px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">
-                  New
-                </span>
-              )}
             </div>
           ))}
 
@@ -244,7 +274,7 @@ export default function Home() {
           )}
           {activeTab === 'history' && (
             <p className="text-slate-500 mt-2 max-w-2xl text-sm">
-              Review and manage your previous LLM workflow executions and audit logs.
+              Review and manage your previous LLM workflow executions and audit logs from the local database.
             </p>
           )}
         </header>
