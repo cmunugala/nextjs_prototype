@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { CheckCircle2, Download, RefreshCcw, Loader2, FileSpreadsheet, X, Search, MapPin, Trash2, Save, Info, Plus, Globe } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { CheckCircle2, Download, RefreshCcw, Loader2, FileSpreadsheet, X, Search, MapPin, Save, Info, Plus, Globe } from 'lucide-react';
 
 interface Mapping {
     country: string;
@@ -26,6 +26,13 @@ interface WorkflowProps {
   name: string;
 }
 
+interface FloatingTooltip {
+  title: string;
+  content: string;
+  x: number;
+  y: number;
+}
+
 const API_BASE_URL = 'http://localhost:8000';
 const LOCAL_STORAGE_KEY = 'databridge_last_job_id';
 
@@ -45,16 +52,42 @@ export default function Workflow({ id, name }: WorkflowProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeAnimalId, setActiveAnimalId] = useState<string | null>(null);
   const [modalSearch, setModalSearch] = useState('');
+  const [tooltip, setTooltip] = useState<FloatingTooltip | null>(null);
 
-  // 1. Initial Load: Check for saved state
-  useEffect(() => {
-    const savedJobId = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedJobId) {
-        resumeJob(savedJobId);
+  const showTooltip = (
+    event: React.MouseEvent<HTMLElement>,
+    title: string,
+    content: string
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const margin = 12;
+    const tooltipWidth = 224;
+    const estimatedTooltipHeight = 112;
+    const hasRightSpace = rect.right + margin + tooltipWidth <= window.innerWidth;
+
+    const x = hasRightSpace
+      ? rect.right + margin
+      : Math.max(margin, rect.left - tooltipWidth - margin);
+    const y = Math.min(
+      Math.max(margin, rect.top + rect.height / 2 - estimatedTooltipHeight / 2),
+      window.innerHeight - estimatedTooltipHeight - margin
+    );
+
+    setTooltip({ title, content, x, y });
+  };
+
+  const fetchResults = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/results/${id}`);
+      const data = await res.json();
+      setResults(data.data);
+      setAvailableCountries(data.available_countries || []);
+    } catch (error) {
+      console.error("Error fetching results:", error);
     }
   }, []);
 
-  const resumeJob = async (id: string) => {
+  const resumeJob = useCallback(async (id: string) => {
     setJobId(id);
     setStatus('processing'); 
     try {
@@ -77,7 +110,15 @@ export default function Workflow({ id, name }: WorkflowProps) {
         console.error("Failed to resume job:", error);
         setStatus('idle');
     }
-  };
+  }, [fetchResults]);
+
+  // 1. Initial Load: Check for saved state
+  useEffect(() => {
+    const savedJobId = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedJobId) {
+        resumeJob(savedJobId);
+    }
+  }, [resumeJob]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -99,18 +140,7 @@ export default function Workflow({ id, name }: WorkflowProps) {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [status, jobId]);
-
-  const fetchResults = async (id: string) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/results/${id}`);
-      const data = await res.json();
-      setResults(data.data);
-      setAvailableCountries(data.available_countries || []);
-    } catch (error) {
-      console.error("Error fetching results:", error);
-    }
-  };
+  }, [status, jobId, fetchResults]);
 
   const handleUpload = async () => {
     setStatus('uploading');
@@ -184,6 +214,7 @@ export default function Workflow({ id, name }: WorkflowProps) {
     setIsModalOpen(false);
     setActiveAnimalId(null);
     setModalSearch('');
+    setTooltip(null);
   };
 
   const syncWithBackend = async (data: AnimalResult[]) => {
@@ -238,6 +269,11 @@ export default function Workflow({ id, name }: WorkflowProps) {
     row.Animal.toLowerCase().includes(searchTerm.toLowerCase()) ||
     row.Mappings.some(m => m.country.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+  const totalResultCount = results?.length ?? 0;
+  const filteredResultCount = filteredResults?.length ?? 0;
+  const rowCountLabel = searchTerm
+    ? `${filteredResultCount} / ${totalResultCount} rows`
+    : `${totalResultCount} rows`;
 
   const filteredModalCountries = availableCountries.filter(c => 
     c.country.toLowerCase().includes(modalSearch.toLowerCase())
@@ -254,7 +290,13 @@ export default function Workflow({ id, name }: WorkflowProps) {
                         <h3 className="text-lg font-bold text-slate-800">Add Country Mapping</h3>
                         <p className="text-slate-400 text-xs">Select a country to add to this animal.</p>
                     </div>
-                    <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
+                    <button
+                        onClick={() => {
+                            setIsModalOpen(false);
+                            setTooltip(null);
+                        }}
+                        className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+                    >
                         <X className="w-5 h-5 text-slate-400" />
                     </button>
                 </div>
@@ -276,13 +318,18 @@ export default function Workflow({ id, name }: WorkflowProps) {
                                 <button
                                     key={idx}
                                     onClick={() => handleAddCountry(c)}
+                                    onMouseEnter={(e) => showTooltip(e, 'Country Context', c.description)}
+                                    onMouseLeave={() => setTooltip(null)}
                                     className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-mongo-mist transition-colors group text-left"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-mongo-sage transition-colors">
                                             <Globe className="w-4 h-4" />
                                         </div>
-                                        <span className="text-sm font-bold text-slate-700">{c.country}</span>
+                                        <span className="flex items-center gap-1.5 text-sm font-bold text-slate-700">
+                                            {c.country}
+                                            <Info className="w-3 h-3 text-slate-300 group-hover:text-mongo-sage transition-colors" />
+                                        </span>
                                     </div>
                                     <Plus className="w-4 h-4 text-slate-300 group-hover:text-mongo-sage opacity-0 group-hover:opacity-100 transition-all" />
                                 </button>
@@ -291,6 +338,18 @@ export default function Workflow({ id, name }: WorkflowProps) {
                     </div>
                 </div>
             </div>
+        </div>
+      )}
+
+      {tooltip && (
+        <div
+          className="fixed z-[200] w-56 rounded-lg bg-slate-800 p-2.5 text-[10px] text-white shadow-xl pointer-events-none"
+          style={{ left: tooltip.x, top: tooltip.y }}
+        >
+          <p className="font-bold mb-1 text-mongo-sage uppercase tracking-widest text-[9px]">
+            {tooltip.title}
+          </p>
+          {tooltip.content}
         </div>
       )}
 
@@ -350,27 +409,30 @@ export default function Workflow({ id, name }: WorkflowProps) {
           )}
 
           {status === 'completed' && results && (
-            <div className="space-y-8 py-2 animate-in fade-in duration-500">
+            <div className="space-y-4 py-1 animate-in fade-in duration-500">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
-                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-slate-800">State Restored</h3>
-                        <p className="text-slate-500 text-xs">Pick up exactly where you left off.</p>
+                        <h3 className="text-base font-bold text-slate-800">State Restored</h3>
+                        <p className="text-slate-500 text-[11px]">Pick up exactly where you left off.</p>
                     </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
-                    <div className="relative flex-1 md:w-64">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <div className="flex items-center gap-2.5">
+                    <span className="hidden sm:inline-flex h-7 items-center rounded-md border border-slate-200 bg-slate-50 px-2.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                        {rowCountLabel}
+                    </span>
+                    <div className="relative flex-1 md:w-56">
+                        <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input 
                             type="text" 
                             placeholder="Filter results..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-mongo-sage/20 transition-all"
+                            className="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-mongo-sage/20 transition-all"
                         />
                     </div>
                     {isSyncing && (
@@ -381,56 +443,51 @@ export default function Workflow({ id, name }: WorkflowProps) {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                <div className="max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-                    <table className="w-full text-left border-collapse table-auto">
-                        <thead className="sticky top-0 z-20 bg-slate-50/95 backdrop-blur-sm border-b border-slate-100">
+              <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+                <div className="max-h-[65vh] overflow-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+                    <table className="min-w-[760px] w-full text-left border-collapse table-fixed">
+                        <thead className="sticky top-0 z-20 bg-slate-100/95 backdrop-blur-sm border-b border-slate-200 shadow-[0_1px_0_rgba(15,23,42,0.04)]">
                             <tr>
-                                <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-1/3">Animal</th>
-                                <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Country Mappings & Confidence</th>
+                                <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wide w-[180px] border-r border-slate-200">Animal</th>
+                                <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Country Mappings & Confidence</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {filteredResults?.map((item) => (
-                                <tr key={item.id} className="group hover:bg-slate-50/30 transition-colors">
-                                    <td className="px-4 py-3 align-middle">
-                                        <div className="relative inline-block group/tooltip">
+                                <tr key={item.id} className="group even:bg-slate-50/20 hover:bg-slate-50/60 transition-colors">
+                                    <td className="px-3 py-2 align-middle border-r border-slate-100">
+                                        <div
+                                            className="relative inline-block group/tooltip"
+                                            onMouseEnter={(e) => showTooltip(e, 'Animal Profile', item.AnimalDescription)}
+                                            onMouseLeave={() => setTooltip(null)}
+                                        >
                                             <div className="flex items-center gap-1.5 cursor-help">
-                                                <span className="font-bold text-slate-800 text-sm border-b border-dotted border-slate-300 group-hover/tooltip:border-mongo-sage group-hover/tooltip:text-mongo-dark transition-all">
+                                                <span className="font-bold text-slate-800 text-xs border-b border-dotted border-slate-300 group-hover/tooltip:border-mongo-sage group-hover/tooltip:text-mongo-dark transition-all">
                                                     {item.Animal}
                                                 </span>
                                                 <Info className="w-2.5 h-2.5 text-slate-300 group-hover/tooltip:text-mongo-sage transition-colors" />
                                             </div>
-                                            <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-mongo-dark text-white text-[11px] rounded-lg shadow-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all z-50 pointer-events-none">
-                                                <p className="font-bold mb-1 text-mongo-sage uppercase tracking-widest text-[9px]">Animal Profile</p>
-                                                {item.AnimalDescription}
-                                                <div className="absolute left-4 top-full w-2 h-2 bg-mongo-dark rotate-45 -translate-y-1"></div>
-                                            </div>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex flex-wrap gap-2 items-center">
+                                    <td className="px-3 py-2">
+                                        <div className="flex flex-wrap gap-1.5 items-center">
                                             {item.Mappings.map((m, idx) => (
                                                 <div 
                                                     key={idx} 
-                                                    className="relative group/tag flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-mongo-sage/50 hover:bg-mongo-mist/10 transition-all shadow-sm active:scale-[0.98]"
+                                                    className="relative group/tag flex items-center gap-1.5 px-1.5 py-1 rounded-md border border-slate-200 bg-white hover:border-mongo-sage/50 hover:bg-mongo-mist/10 transition-all shadow-sm active:scale-[0.98]"
+                                                    onMouseEnter={(e) => showTooltip(e, 'Country Context', m.description)}
+                                                    onMouseLeave={() => setTooltip(null)}
                                                 >
-                                                    <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-slate-800 text-white text-[11px] rounded-lg shadow-xl opacity-0 invisible group-hover/tag:opacity-100 group-hover/tag:visible transition-all z-50 pointer-events-none">
-                                                        <p className="font-bold mb-1 text-mongo-sage uppercase tracking-widest text-[9px]">Country Context</p>
-                                                        {m.description}
-                                                        <div className="absolute left-4 top-full w-2 h-2 bg-slate-800 rotate-45 -translate-y-1"></div>
-                                                    </div>
-
-                                                    <MapPin className="w-3 h-3 text-mongo-sage" />
-                                                    <span className="text-xs font-semibold text-slate-700">{m.country}</span>
-                                                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-black ${m.confidence > 0.9 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                    <MapPin className="w-2.5 h-2.5 text-mongo-sage" />
+                                                    <span className="text-[11px] font-semibold text-slate-700">{m.country}</span>
+                                                    <span className={`px-1 py-0.5 rounded text-[8px] font-black ${m.confidence > 0.9 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                                                         {(m.confidence * 100).toFixed(0)}%
                                                     </span>
                                                     <button 
                                                         onClick={(e) => handleRemoveMapping(e, item.id, m.country)}
-                                                        className="w-4 h-4 rounded flex items-center justify-center text-slate-300 hover:bg-red-100 hover:text-red-600 transition-all ml-1"
+                                                        className="w-3.5 h-3.5 rounded flex items-center justify-center text-slate-300 hover:bg-red-100 hover:text-red-600 transition-all ml-0.5"
                                                     >
-                                                        <X className="w-3 h-3" />
+                                                        <X className="w-2.5 h-2.5" />
                                                     </button>
                                                 </div>
                                             ))}
@@ -440,10 +497,10 @@ export default function Workflow({ id, name }: WorkflowProps) {
                                                     setActiveAnimalId(item.id);
                                                     setIsModalOpen(true);
                                                 }}
-                                                className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg border border-dashed border-slate-300 text-slate-400 hover:border-mongo-sage hover:text-mongo-sage hover:bg-mongo-mist/10 transition-all group shadow-sm"
+                                                className="flex items-center justify-center gap-1 px-1.5 py-1 rounded-md border border-dashed border-slate-300 text-slate-400 hover:border-mongo-sage hover:text-mongo-sage hover:bg-mongo-mist/10 transition-all group shadow-sm"
                                             >
-                                                <Plus className="w-3 h-3 group-hover:scale-125 transition-transform" />
-                                                <span className="text-[10px] font-bold uppercase tracking-widest">Add</span>
+                                                <Plus className="w-2.5 h-2.5 group-hover:scale-125 transition-transform" />
+                                                <span className="text-[9px] font-bold uppercase tracking-wide">Add</span>
                                             </button>
                                         </div>
                                     </td>
@@ -454,17 +511,17 @@ export default function Workflow({ id, name }: WorkflowProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-50">
+              <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-slate-50">
                 <button 
                   onClick={handleDownload}
-                  className="flex-1 flex items-center justify-center gap-2 bg-mongo-green text-white px-8 py-4 rounded-xl text-sm font-bold transition-all hover:bg-slate-800 shadow-md active:scale-[0.99]"
+                  className="flex-1 flex items-center justify-center gap-2 bg-mongo-green text-white px-6 py-3 rounded-lg text-sm font-bold transition-all hover:bg-slate-800 shadow-md active:scale-[0.99]"
                 >
                   <Download className="w-4 h-4" />
                   Download Processed CSV
                 </button>
                 <button 
                   onClick={reset}
-                  className="flex items-center justify-center gap-2 bg-white text-slate-600 border border-slate-200 px-8 py-4 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all"
+                  className="flex items-center justify-center gap-2 bg-white text-slate-600 border border-slate-200 px-6 py-3 rounded-lg text-sm font-bold hover:bg-slate-50 transition-all"
                 >
                   <RefreshCcw className="w-4 h-4" />
                   New Job

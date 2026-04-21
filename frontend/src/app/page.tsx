@@ -5,20 +5,72 @@ import Workflow from './components/Workflow';
 import { Database, BarChart3, Home as HomeIcon, ArrowRight, Activity, Clock, History, CheckCircle2, Timer, AlertCircle, Loader2 } from 'lucide-react';
 
 const WORKFLOWS = [
-  { id: 'workflow_1', name: 'Animal Finder', description: 'Map animals to countries with confidence scoring.', icon: <BarChart3 className="w-5 h-5" /> },
+  { id: 'workflow_1', name: 'Animal Finder', description: 'Map animals to countries with confidence scoring.', icon: <BarChart3 className="w-4 h-4" /> },
 ];
 
 const API_BASE_URL = 'http://localhost:8000';//this is what we send requests to from the frontend (backend)
+const SIDEBAR_WIDTH_KEY = 'databridge_sidebar_width';
+const DEFAULT_SIDEBAR_WIDTH = 260;
+const MIN_SIDEBAR_WIDTH = 160;
+const MAX_SIDEBAR_WIDTH = 360;
+
+interface HistoryJob {
+  job_id: string;
+  status: string;
+  created_at: string;
+  filename?: string;
+}
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home');
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<HistoryJob[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
+  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []); //essentially runs this exactly once after the page has loaded
+
+  useEffect(() => {
+    const savedWidth = Number(localStorage.getItem(SIDEBAR_WIDTH_KEY));
+    if (Number.isFinite(savedWidth)) {
+        setSidebarWidth(Math.min(Math.max(savedWidth, MIN_SIDEBAR_WIDTH), MAX_SIDEBAR_WIDTH));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isResizingSidebar) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+        const nextWidth = Math.min(
+            Math.max(event.clientX, MIN_SIDEBAR_WIDTH),
+            MAX_SIDEBAR_WIDTH
+        );
+        setSidebarWidth(nextWidth);
+    };
+
+    const handleMouseUp = () => {
+        setIsResizingSidebar(false);
+    };
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizingSidebar]);
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_WIDTH_KEY, String(sidebarWidth));
+  }, [sidebarWidth]);
 
   useEffect(() => {
     if (isMounted && activeTab === 'history') {
@@ -172,24 +224,26 @@ export default function Home() {
     <div className="flex min-h-screen bg-white font-sans text-slate-900 relative">
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-mongo-orange z-50 shadow-sm opacity-90"></div>
 
-      <aside className="w-72 bg-mongo-mist flex flex-col border-r border-slate-200 pt-1">
-        <div className="p-8 pb-4 flex items-center gap-3">
-          <div className="w-10 h-10 bg-mongo-green rounded-lg flex items-center justify-center shadow-sm">
-            <Database className="text-white w-6 h-6" />
+      <aside
+        className="relative shrink-0 bg-mongo-mist flex flex-col border-r border-slate-200 pt-1"
+        style={{ width: sidebarWidth }}
+      >
+        <div className="px-3 py-4 flex items-center gap-2">
+          <div className="w-7 h-7 bg-mongo-green rounded-md flex items-center justify-center shadow-sm shrink-0">
+            <Database className="text-white w-3.5 h-3.5" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-mongo-dark">DataBridge</h1>
-            <p className="text-[10px] text-mongo-sage uppercase tracking-widest font-bold">Standard</p>
+          <div className="min-w-0 overflow-hidden">
+            <h1 className="text-sm font-bold tracking-tight text-mongo-dark whitespace-nowrap">DataBridge</h1>
           </div>
         </div>
 
-        <nav className="flex-1 mt-8 overflow-y-auto">
-          <div className="px-6 mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            General
+        <nav className="flex-1 mt-3 overflow-y-auto">
+          <div className="px-3 mb-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+            Main
           </div>
           <div
             className={`
-              px-6 py-4 cursor-pointer transition-all duration-200 flex items-center gap-4
+              px-3 py-2.5 cursor-pointer transition-all duration-200 flex items-center gap-2.5
               ${activeTab === 'home' 
                 ? 'bg-white text-mongo-green border-r-4 border-mongo-green font-semibold shadow-sm' 
                 : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
@@ -197,18 +251,18 @@ export default function Home() {
             `}
             onClick={() => setActiveTab('home')}
           >
-            <HomeIcon className={`w-5 h-5 ${activeTab === 'home' ? 'text-mongo-green' : 'text-slate-400'}`} />
-            <span className="text-sm">Home Overview</span>
+            <HomeIcon className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'home' ? 'text-mongo-green' : 'text-slate-400'}`} />
+            <span className="text-xs whitespace-nowrap overflow-hidden">Home</span>
           </div>
 
-          <div className="px-6 mt-8 mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Workflows
+          <div className="px-3 mt-5 mb-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+            Flows
           </div>
           {WORKFLOWS.map((wf) => (
             <div
               key={wf.id}
               className={`
-                px-6 py-4 cursor-pointer transition-all duration-200 flex items-center gap-4
+                px-3 py-2.5 cursor-pointer transition-all duration-200 flex items-center gap-2.5
                 ${activeTab === wf.id 
                   ? 'bg-white text-mongo-green border-r-4 border-mongo-green font-semibold shadow-sm' 
                   : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
@@ -216,19 +270,19 @@ export default function Home() {
               `}
               onClick={() => setActiveTab(wf.id)}
             >
-              <div className={activeTab === wf.id ? 'text-mongo-green' : 'text-slate-400'}>
+              <div className={`shrink-0 ${activeTab === wf.id ? 'text-mongo-green' : 'text-slate-400'}`}>
                 {wf.icon}
               </div>
-              <span className="text-sm">{wf.name}</span>
+              <span className="text-xs whitespace-nowrap overflow-hidden">{wf.name}</span>
             </div>
           ))}
 
-          <div className="px-6 mt-8 mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Archives
+          <div className="px-3 mt-5 mb-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+            Logs
           </div>
           <div
             className={`
-              px-6 py-4 cursor-pointer transition-all duration-200 flex items-center gap-4
+              px-3 py-2.5 cursor-pointer transition-all duration-200 flex items-center gap-2.5
               ${activeTab === 'history' 
                 ? 'bg-white text-mongo-green border-r-4 border-mongo-green font-semibold shadow-sm' 
                 : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
@@ -236,27 +290,35 @@ export default function Home() {
             `}
             onClick={() => setActiveTab('history')}
           >
-            <History className={`w-5 h-5 ${activeTab === 'history' ? 'text-mongo-green' : 'text-slate-400'}`} />
-            <span className="text-sm">Execution History</span>
+            <History className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'history' ? 'text-mongo-green' : 'text-slate-400'}`} />
+            <span className="text-xs whitespace-nowrap overflow-hidden">History</span>
           </div>
         </nav>
 
-        <div className="p-6 mt-auto border-t border-slate-200 bg-slate-50/50">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">
+        <div className="p-3 mt-auto border-t border-slate-200 bg-slate-50/50">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600 shrink-0">
               CM
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-xs font-semibold truncate text-slate-800">Chetan Munugala</p>
-              <p className="text-[10px] text-slate-500 truncate">Account Settings</p>
+              <p className="text-[11px] font-semibold whitespace-nowrap text-slate-800">Chetan</p>
             </div>
           </div>
         </div>
+        <button
+          type="button"
+          aria-label="Resize sidebar"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            setIsResizingSidebar(true);
+          }}
+          className="absolute -right-1 top-0 h-full w-2 cursor-col-resize transition-colors hover:bg-mongo-sage/20"
+        />
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-12 bg-white overflow-y-auto pt-16">
-        <header className="mb-12">
+      <main className="flex-1 px-8 py-10 bg-white overflow-y-auto">
+        <header className="mb-8">
           <nav className="flex items-center text-[10px] text-slate-400 mb-2 gap-2 font-bold uppercase tracking-widest">
             <span>Workspace</span>
             <span>/</span>
@@ -279,7 +341,7 @@ export default function Home() {
           )}
         </header>
 
-        <div className="max-w-4xl">
+        <div className={`w-full ${activeTab === 'home' ? 'max-w-4xl' : (activeTab === 'history' ? 'max-w-5xl' : 'max-w-7xl')}`}>
           {activeTab === 'home' ? renderHome() : (
             activeTab === 'history' ? renderHistory() : (
               WORKFLOWS.map((wf) => (
