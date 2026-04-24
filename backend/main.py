@@ -1,22 +1,23 @@
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks, Body
+from fastapi import BackgroundTasks, Body, FastAPI, File, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-import uuid
-import time
-import pandas as pd
+from fastapi.responses import Response
+import csv
+import io
+import json
 import random
 import sqlite3
-import json
-import io
+import time
+import uuid
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+import pandas as pd
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "*"
-    ],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -25,32 +26,63 @@ DB_PATH = "jobs_v2.db"
 JOB_COLUMNS = {
     "status",
     "progress",
-    "preview_data",
     "available_countries",
     "animal_filename",
     "country_filename",
+    "preview_data",
 }
+DEFAULT_COMPLIANCE = "0% Not Compliant"
 
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("""CREATE TABLE IF NOT EXISTS jobs
-                 (job_id TEXT PRIMARY KEY, 
-                  status TEXT, 
-                  progress INTEGER, 
-                  preview_data TEXT, 
-                  available_countries TEXT, 
-                  animal_filename TEXT,
-                  country_filename TEXT,
-                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP)""")
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS jobs
+           (job_id TEXT PRIMARY KEY,
+            status TEXT,
+            progress INTEGER,
+            preview_data TEXT,
+            available_countries TEXT,
+            animal_filename TEXT,
+            country_filename TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"""
+    )
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS job_rows
+           (job_id TEXT NOT NULL,
+            row_id TEXT NOT NULL,
+            row_order INTEGER NOT NULL,
+            animal TEXT,
+            animal_description TEXT,
+            type_of_organism TEXT,
+            interesting_fact TEXT,
+            recommended_countries_json TEXT,
+            finalized_countries_json TEXT,
+            compliant TEXT,
+            identified_gaps TEXT,
+            PRIMARY KEY (job_id, row_id),
+            FOREIGN KEY (job_id) REFERENCES jobs(job_id) ON DELETE CASCADE)"""
+    )
+    c.execute(
+        "CREATE INDEX IF NOT EXISTS idx_job_rows_job_order ON job_rows(job_id, row_order)"
+    )
+    c.execute(
+        "CREATE INDEX IF NOT EXISTS idx_job_rows_job_animal ON job_rows(job_id, animal)"
+    )
+
     existing_columns = {
         row[1] for row in c.execute("PRAGMA table_info(jobs)").fetchall()
     }
+    if "preview_data" not in existing_columns:
+        c.execute("ALTER TABLE jobs ADD COLUMN preview_data TEXT")
+    if "available_countries" not in existing_columns:
+        c.execute("ALTER TABLE jobs ADD COLUMN available_countries TEXT")
     if "animal_filename" not in existing_columns:
         c.execute("ALTER TABLE jobs ADD COLUMN animal_filename TEXT")
     if "country_filename" not in existing_columns:
         c.execute("ALTER TABLE jobs ADD COLUMN country_filename TEXT")
+
     conn.commit()
     conn.close()
 
@@ -82,6 +114,18 @@ def clean_text(value: Any, default: str = "") -> str:
         return default
     text = str(value).strip()
     return text if text else default
+
+
+def parse_json_list(value: Any) -> List[Dict[str, Any]]:
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str) and value:
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return []
+        return parsed if isinstance(parsed, list) else []
+    return []
 
 
 def normalize_mapping(
@@ -116,12 +160,8 @@ def normalize_preview_rows(
 
     normalized_rows = []
     for row in rows:
-        recommended = row.get("RecommendedCountries")
+        recommended = row.get("RecommendedCountries", [])
         finalized = row.get("FinalizedCountries")
-        legacy_mappings = row.get("Mappings", [])
-
-        if recommended is None:
-            recommended = legacy_mappings
         if finalized is None:
             finalized = recommended
 
@@ -140,9 +180,7 @@ def normalize_preview_rows(
                     normalize_mapping(mapping, country_desc_lookup)
                     for mapping in finalized
                 ],
-                "Compliant": clean_text(
-                    row.get("Compliant"), "0% Not Compliant"
-                ),
+                "Compliant": clean_text(row.get("Compliant"), DEFAULT_COMPLIANCE),
                 "IdentifiedGaps": clean_text(row.get("IdentifiedGaps"), ""),
             }
         )
@@ -150,8 +188,115 @@ def normalize_preview_rows(
     return normalized_rows
 
 
+def normalize_job_row(
+    row: sqlite3.Row, available_countries: List[Dict[str, Any]]
+) -> Dict[str, Any]:
+    country_desc_lookup = {
+        clean_text(country.get("country"), ""): clean_text(
+            country.get("description"), "No description available."
+        )
+        for country in available_countries
+    }
+    recommended = [
+        normalize_mapping(mapping, country_desc_lookup)
+        for mapping in parse_json_list(row["recommended_countries_json"])
+    ]
+    finalized_raw = parse_json_list(row["finalized_countries_json"])
+    finalized_source = finalized_raw if finalized_raw else recommended
+    finalized = [
+        normalize_mapping(mapping, country_desc_lookup)
+        for mapping in finalized_source
+    ]
+
+    return {
+        "id": clean_text(row["row_id"], str(uuid.uuid4())[:8]),
+        "Animal": clean_text(row["animal"], ""),
+        "AnimalDescription": clean_text(row["animal_description"], ""),
+        "TypeOfOrganism": clean_text(row["type_of_organism"], ""),
+        "InterestingFact": clean_text(row["interesting_fact"], ""),
+        "RecommendedCountries": recommended,
+        "FinalizedCountries": finalized,
+        "Compliant": clean_text(row["compliant"], DEFAULT_COMPLIANCE),
+        "IdentifiedGaps": clean_text(row["identified_gaps"], ""),
+    }
+
+
+def get_available_countries(conn: sqlite3.Connection, job_id: str) -> List[Dict[str, Any]]:
+    job = conn.execute(
+        "SELECT available_countries FROM jobs WHERE job_id = ?", (job_id,)
+    ).fetchone()
+    if not job or not job["available_countries"]:
+        return []
+    try:
+        parsed = json.loads(job["available_countries"])
+    except json.JSONDecodeError:
+        return []
+    return parsed if isinstance(parsed, list) else []
+
+
+def insert_job_rows(
+    conn: sqlite3.Connection, job_id: str, rows: List[Dict[str, Any]]
+):
+    conn.execute("DELETE FROM job_rows WHERE job_id = ?", (job_id,))
+    payload = []
+    for index, row in enumerate(rows):
+        payload.append(
+            (
+                job_id,
+                clean_text(row.get("id"), str(uuid.uuid4())[:8]),
+                index,
+                clean_text(row.get("Animal"), ""),
+                clean_text(row.get("AnimalDescription"), ""),
+                clean_text(row.get("TypeOfOrganism"), ""),
+                clean_text(row.get("InterestingFact"), ""),
+                json.dumps(row.get("RecommendedCountries", [])),
+                json.dumps(row.get("FinalizedCountries", row.get("RecommendedCountries", []))),
+                clean_text(row.get("Compliant"), DEFAULT_COMPLIANCE),
+                clean_text(row.get("IdentifiedGaps"), ""),
+            )
+        )
+
+    conn.executemany(
+        """INSERT INTO job_rows
+           (job_id, row_id, row_order, animal, animal_description, type_of_organism,
+            interesting_fact, recommended_countries_json, finalized_countries_json,
+            compliant, identified_gaps)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        payload,
+    )
+
+
+def migrate_job_rows_if_needed(conn: sqlite3.Connection, job_id: str):
+    existing = conn.execute(
+        "SELECT COUNT(*) AS count FROM job_rows WHERE job_id = ?", (job_id,)
+    ).fetchone()
+    if existing and existing["count"] > 0:
+        return
+
+    job = conn.execute(
+        "SELECT preview_data, available_countries FROM jobs WHERE job_id = ?", (job_id,)
+    ).fetchone()
+    if not job or not job["preview_data"]:
+        return
+
+    try:
+        preview_rows = json.loads(job["preview_data"])
+    except json.JSONDecodeError:
+        return
+
+    available_countries = []
+    if job["available_countries"]:
+        try:
+            available_countries = json.loads(job["available_countries"])
+        except json.JSONDecodeError:
+            available_countries = []
+
+    normalized_rows = normalize_preview_rows(preview_rows, available_countries)
+    insert_job_rows(conn, job_id, normalized_rows)
+    conn.commit()
+
+
 def process_animal_workflow(job_id: str, animals_bytes: bytes, countries_bytes: bytes):
-    """Processes datasets directly in memory using Pandas."""
     update_job_db(job_id, {"status": "processing"})
 
     try:
@@ -188,10 +333,15 @@ def process_animal_workflow(job_id: str, animals_bytes: bytes, countries_bytes: 
                 "interesting_fact": clean_text(row.get("Interesting Fact", ""), ""),
             }
 
-        country_names = [c["country"] for c in country_list if c["country"]]
+        country_names = [country["country"] for country in country_list if country["country"]]
         country_desc_lookup = {
-            c["country"]: c["description"] for c in country_list if c["country"]
+            country["country"]: country["description"]
+            for country in country_list
+            if country["country"]
         }
+
+        if not country_names:
+            raise ValueError("Country file must include at least one country.")
 
         animals = [
             animal
@@ -234,15 +384,19 @@ def process_animal_workflow(job_id: str, animals_bytes: bytes, countries_bytes: 
                     "FinalizedCountries": [
                         dict(mapping) for mapping in recommended_countries
                     ],
-                    "Compliant": "0% Not Compliant",
+                    "Compliant": DEFAULT_COMPLIANCE,
                     "IdentifiedGaps": "",
                 }
             )
 
+        conn = get_db_connection()
+        insert_job_rows(conn, job_id, results)
+        conn.commit()
+        conn.close()
+
         update_job_db(
             job_id,
             {
-                "preview_data": results,
                 "available_countries": country_list,
                 "status": "completed",
                 "progress": 100,
@@ -252,6 +406,29 @@ def process_animal_workflow(job_id: str, animals_bytes: bytes, countries_bytes: 
     except Exception as e:
         print(f"Workflow Error: {e}")
         update_job_db(job_id, {"status": "failed"})
+
+
+def build_rows_where_clause(job_id: str, search: str):
+    where_clause = "WHERE job_id = ?"
+    params: List[Any] = [job_id]
+
+    if search:
+        pattern = f"%{search.lower()}%"
+        where_clause += """
+            AND (
+                lower(animal) LIKE ?
+                OR lower(animal_description) LIKE ?
+                OR lower(type_of_organism) LIKE ?
+                OR lower(interesting_fact) LIKE ?
+                OR lower(compliant) LIKE ?
+                OR lower(identified_gaps) LIKE ?
+                OR lower(recommended_countries_json) LIKE ?
+                OR lower(finalized_countries_json) LIKE ?
+            )
+        """
+        params.extend([pattern] * 8)
+
+    return where_clause, params
 
 
 @app.post("/api/upload/{workflow_id}")
@@ -314,45 +491,177 @@ async def get_status(job_id: str):
     return dict(job)
 
 
-@app.get("/api/results/{job_id}")
-async def get_results(job_id: str):
+@app.get("/api/jobs/{job_id}/rows")
+async def get_job_rows(
+    job_id: str,
+    page: int = Query(0, ge=0),
+    page_size: int = Query(10, ge=1, le=100),
+    search: str = Query(""),
+    sort: str = Query("none"),
+):
     conn = get_db_connection()
-    job = conn.execute("SELECT * FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+    job = conn.execute("SELECT job_id FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+    if not job:
+        conn.close()
+        return {"error": "Not found"}
+
+    migrate_job_rows_if_needed(conn, job_id)
+    available_countries = get_available_countries(conn, job_id)
+
+    full_total_count = conn.execute(
+        "SELECT COUNT(*) AS count FROM job_rows WHERE job_id = ?", (job_id,)
+    ).fetchone()["count"]
+
+    where_clause, params = build_rows_where_clause(job_id, search.strip())
+    total_count = conn.execute(
+        f"SELECT COUNT(*) AS count FROM job_rows {where_clause}", params
+    ).fetchone()["count"]
+
+    if sort == "asc":
+        order_clause = "ORDER BY lower(animal) ASC, row_order ASC"
+    elif sort == "desc":
+        order_clause = "ORDER BY lower(animal) DESC, row_order ASC"
+    else:
+        order_clause = "ORDER BY row_order ASC"
+
+    rows = conn.execute(
+        f"""SELECT * FROM job_rows
+            {where_clause}
+            {order_clause}
+            LIMIT ? OFFSET ?""",
+        [*params, page_size, page * page_size],
+    ).fetchall()
     conn.close()
 
-    if not job or not job["preview_data"]:
-        return {"error": "Not ready"}
-
-    available_countries = (
-        json.loads(job["available_countries"]) if job["available_countries"] else []
-    )
-    preview_rows = json.loads(job["preview_data"])
-
     return {
-        "data": normalize_preview_rows(preview_rows, available_countries),
+        "data": [normalize_job_row(row, available_countries) for row in rows],
         "available_countries": available_countries,
+        "total_count": total_count,
+        "full_total_count": full_total_count,
+        "page": page,
+        "page_size": page_size,
     }
 
 
-@app.put("/api/results/{job_id}")
-async def update_results(job_id: str, data: List[Dict[str, Any]] = Body(...)):
+@app.put("/api/jobs/{job_id}/rows/{row_id}")
+async def update_job_row(
+    job_id: str,
+    row_id: str,
+    data: Dict[str, Any] = Body(...),
+):
     conn = get_db_connection()
-    job = conn.execute(
-        "SELECT available_countries FROM jobs WHERE job_id = ?", (job_id,)
+    job = conn.execute("SELECT job_id FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+    if not job:
+        conn.close()
+        return {"error": "Not found"}
+
+    migrate_job_rows_if_needed(conn, job_id)
+    available_countries = get_available_countries(conn, job_id)
+    country_desc_lookup = {
+        clean_text(country.get("country"), ""): clean_text(
+            country.get("description"), "No description available."
+        )
+        for country in available_countries
+    }
+
+    row = conn.execute(
+        "SELECT * FROM job_rows WHERE job_id = ? AND row_id = ?", (job_id, row_id)
+    ).fetchone()
+    if not row:
+        conn.close()
+        return {"error": "Row not found"}
+
+    finalized = data.get("FinalizedCountries")
+    if finalized is None:
+        finalized = parse_json_list(row["finalized_countries_json"])
+    normalized_finalized = [
+        normalize_mapping(mapping, country_desc_lookup) for mapping in finalized
+    ]
+    compliant = clean_text(data.get("Compliant", row["compliant"]), DEFAULT_COMPLIANCE)
+    identified_gaps = clean_text(data.get("IdentifiedGaps", row["identified_gaps"]), "")
+
+    conn.execute(
+        """UPDATE job_rows
+           SET finalized_countries_json = ?, compliant = ?, identified_gaps = ?
+           WHERE job_id = ? AND row_id = ?""",
+        (
+            json.dumps(normalized_finalized),
+            compliant,
+            identified_gaps,
+            job_id,
+            row_id,
+        ),
+    )
+    conn.commit()
+    updated_row = conn.execute(
+        "SELECT * FROM job_rows WHERE job_id = ? AND row_id = ?", (job_id, row_id)
     ).fetchone()
     conn.close()
 
-    available_countries = (
-        json.loads(job["available_countries"])
-        if job and job["available_countries"]
-        else []
+    return {
+        "status": "updated",
+        "data": normalize_job_row(updated_row, available_countries),
+    }
+
+
+@app.get("/api/jobs/{job_id}/export")
+async def export_job_rows(job_id: str):
+    conn = get_db_connection()
+    job = conn.execute("SELECT job_id FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+    if not job:
+        conn.close()
+        return {"error": "Not found"}
+
+    migrate_job_rows_if_needed(conn, job_id)
+    available_countries = get_available_countries(conn, job_id)
+    rows = conn.execute(
+        "SELECT * FROM job_rows WHERE job_id = ? ORDER BY row_order ASC", (job_id,)
+    ).fetchall()
+    conn.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(
+        [
+            "Animal",
+            "Animal Description",
+            "Type of Organism",
+            "Recommended Countries",
+            "Finalized Countries",
+            "Compliant",
+            "Identified Gaps",
+            "Interesting Fact",
+        ]
     )
 
-    update_job_db(
-        job_id,
-        {"preview_data": normalize_preview_rows(data, available_countries)},
+    for row in rows:
+        normalized = normalize_job_row(row, available_countries)
+        writer.writerow(
+            [
+                normalized["Animal"],
+                normalized["AnimalDescription"],
+                normalized["TypeOfOrganism"],
+                "; ".join(
+                    mapping["country"]
+                    for mapping in normalized["RecommendedCountries"]
+                ),
+                "; ".join(
+                    mapping["country"]
+                    for mapping in normalized["FinalizedCountries"]
+                ),
+                normalized["Compliant"],
+                normalized["IdentifiedGaps"],
+                normalized["InterestingFact"],
+            ]
+        )
+
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="animal_results_{job_id}.csv"'
+        },
     )
-    return {"status": "updated"}
 
 
 if __name__ == "__main__":

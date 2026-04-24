@@ -15,13 +15,23 @@ const MAX_SIDEBAR_WIDTH = 360;
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home');
-  const [sidebarWidth, setSidebarWidth] = useState(() => {
-    if (typeof window === 'undefined') return DEFAULT_SIDEBAR_WIDTH;
-    const savedWidth = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));
-    if (!Number.isFinite(savedWidth)) return DEFAULT_SIDEBAR_WIDTH;
-    return Math.min(Math.max(savedWidth, MIN_SIDEBAR_WIDTH), MAX_SIDEBAR_WIDTH);
-  });
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
+
+  useEffect(() => {
+    const savedWidth = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));
+    if (!Number.isFinite(savedWidth)) return;
+
+    const nextWidth = Math.min(
+      Math.max(savedWidth, MIN_SIDEBAR_WIDTH),
+      MAX_SIDEBAR_WIDTH
+    );
+    const frameId = window.requestAnimationFrame(() => {
+      setSidebarWidth(nextWidth);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   useEffect(() => {
     if (!isResizingSidebar) return;
@@ -52,7 +62,7 @@ export default function Home() {
   }, [isResizingSidebar]);
 
   useEffect(() => {
-    localStorage.setItem(SIDEBAR_WIDTH_KEY, String(sidebarWidth));
+    window.localStorage.setItem(SIDEBAR_WIDTH_KEY, String(sidebarWidth));
   }, [sidebarWidth]);
 
   const activeWorkflow = WORKFLOWS.find((workflow) => workflow.id === activeTab);

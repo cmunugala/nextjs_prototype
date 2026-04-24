@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ArrowLeft,
   ChevronLeft,
@@ -61,6 +61,14 @@ interface FloatingTooltip {
   y: number;
 }
 
+interface JobRowsResponse {
+  data: unknown[];
+  available_countries?: CountryInfo[];
+  total_count?: number;
+  full_total_count?: number;
+  error?: string;
+}
+
 type WorkflowViewMode = 'list' | 'detail';
 type AnimalSortOrder = 'none' | 'asc' | 'desc';
 
@@ -111,10 +119,8 @@ function normalizeMappings(rawMappings: unknown): Mapping[] {
 }
 
 function normalizeAnimalResult(rawRow: unknown): AnimalResult {
-  const row = rawRow as Partial<AnimalResult> & { Mappings?: Mapping[] };
-  const recommended = normalizeMappings(
-    row.RecommendedCountries ?? row.Mappings ?? []
-  );
+  const row = rawRow as Partial<AnimalResult>;
+  const recommended = normalizeMappings(row.RecommendedCountries ?? []);
   const finalized = normalizeMappings(row.FinalizedCountries ?? recommended);
 
   return {
@@ -130,10 +136,6 @@ function normalizeAnimalResult(rawRow: unknown): AnimalResult {
   };
 }
 
-function escapeCsv(value: string) {
-  return `"${value.replace(/"/g, '""')}"`;
-}
-
 export default function Workflow(props: WorkflowProps) {
   const { id } = props;
   const [animalFile, setAnimalFile] = useState<File | null>(null);
@@ -143,12 +145,15 @@ export default function Workflow(props: WorkflowProps) {
   const [jobPage, setJobPage] = useState(0);
   const [viewMode, setViewMode] = useState<WorkflowViewMode>('list');
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [selectedJobResults, setSelectedJobResults] = useState<AnimalResult[] | null>(null);
+  const [selectedJobResults, setSelectedJobResults] = useState<AnimalResult[]>([]);
   const [availableCountries, setAvailableCountries] = useState<CountryInfo[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [animalSortOrder, setAnimalSortOrder] = useState<AnimalSortOrder>('none');
   const [resultsPage, setResultsPage] = useState(0);
   const [resultsPerPage, setResultsPerPage] = useState(DEFAULT_RESULTS_PER_PAGE);
+  const [totalResultCount, setTotalResultCount] = useState(0);
+  const [fullResultCount, setFullResultCount] = useState(0);
+  const [isLoadingResults, setIsLoadingResults] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -194,13 +199,28 @@ export default function Workflow(props: WorkflowProps) {
     }
   }, []);
 
-  const fetchResults = useCallback(async (jobId: string) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/results/${jobId}`);
-      const data = await res.json();
+  const fetchResultsPage = useCallback(
+    async (
+      jobId: string,
+      page: number,
+      pageSize: number,
+      search: string,
+      sort: AnimalSortOrder,
+      signal?: AbortSignal
+    ) => {
+      const params = new URLSearchParams({
+        page: String(page),
+        page_size: String(pageSize),
+        search,
+        sort,
+      });
 
+      const res = await fetch(`${API_BASE_URL}/api/jobs/${jobId}/rows?${params.toString()}`, {
+        signal,
+      });
+      const data: JobRowsResponse = await res.json();
       if (data.error) {
-        return;
+        return false;
       }
 
       const normalizedRows = Array.isArray(data.data)
@@ -208,11 +228,13 @@ export default function Workflow(props: WorkflowProps) {
         : [];
 
       setSelectedJobResults(normalizedRows);
-      setAvailableCountries(data.available_countries || []);
-    } catch (error) {
-      console.error('Error fetching results:', error);
-    }
-  }, []);
+      setAvailableCountries(Array.isArray(data.available_countries) ? data.available_countries : []);
+      setTotalResultCount(data.total_count ?? 0);
+      setFullResultCount(data.full_total_count ?? 0);
+      return true;
+    },
+    []
+  );
 
   useEffect(() => {
     fetchHistory();
@@ -256,6 +278,43 @@ export default function Workflow(props: WorkflowProps) {
     return () => clearInterval(interval);
   }, [jobs]);
 
+  useEffect(() => {
+    if (viewMode !== 'detail' || !selectedJobId) return;
+
+    const controller = new AbortController();
+    setIsLoadingResults(true);
+
+    fetchResultsPage(
+      selectedJobId,
+      resultsPage,
+      resultsPerPage,
+      searchTerm,
+      animalSortOrder,
+      controller.signal
+    )
+      .catch((error) => {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        console.error('Error fetching results:', error);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoadingResults(false);
+        }
+      });
+
+    return () => controller.abort();
+  }, [
+    animalSortOrder,
+    fetchResultsPage,
+    resultsPage,
+    resultsPerPage,
+    searchTerm,
+    selectedJobId,
+    viewMode,
+  ]);
+
   const closeCountryModal = () => {
     setIsModalOpen(false);
     setActiveAnimalId(null);
@@ -276,18 +335,18 @@ export default function Workflow(props: WorkflowProps) {
     setGapDraft('');
   };
 
-  const openJobDetail = async (jobId: string) => {
+  const openJobDetail = (jobId: string) => {
     setSelectedJobId(jobId);
-    setSelectedJobResults(null);
+    setSelectedJobResults([]);
     setAvailableCountries([]);
     setSearchTerm('');
     setResultsPage(0);
+    setAnimalSortOrder('none');
     setTooltip(null);
     closeCountryModal();
     closeGapEditor();
     setViewMode('detail');
     localStorage.setItem(LOCAL_STORAGE_KEY, jobId);
-    await fetchResults(jobId);
   };
 
   const handleUpload = async () => {
@@ -335,22 +394,44 @@ export default function Workflow(props: WorkflowProps) {
     }
   };
 
-  const syncWithBackend = async (data: AnimalResult[]) => {
-    if (!selectedJobId) return;
+  const syncRowWithBackend = useCallback(
+    async (
+      rowId: string,
+      updates: Partial<Pick<AnimalResult, 'FinalizedCountries' | 'Compliant' | 'IdentifiedGaps'>>
+    ) => {
+      if (!selectedJobId) return;
 
-    setIsSyncing(true);
-    try {
-      await fetch(`${API_BASE_URL}/api/results/${selectedJobId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-    } catch (error) {
-      console.error('Sync failed:', error);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
+      setIsSyncing(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/jobs/${selectedJobId}/rows/${rowId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates),
+        });
+        const data = await res.json();
+        if (data.error) return;
+
+        if (data.data) {
+          const normalizedRow = normalizeAnimalResult(data.data);
+          setSelectedJobResults((currentRows) =>
+            currentRows.map((item) => (item.id === rowId ? normalizedRow : item))
+          );
+        }
+      } catch (error) {
+        console.error('Sync failed:', error);
+        await fetchResultsPage(
+          selectedJobId,
+          resultsPage,
+          resultsPerPage,
+          searchTerm,
+          animalSortOrder
+        );
+      } finally {
+        setIsSyncing(false);
+      }
+    },
+    [animalSortOrder, fetchResultsPage, resultsPage, resultsPerPage, searchTerm, selectedJobId]
+  );
 
   const handleRemoveFinalizedCountry = (
     e: React.MouseEvent,
@@ -358,30 +439,32 @@ export default function Workflow(props: WorkflowProps) {
     countryName: string
   ) => {
     e.stopPropagation();
-    if (!selectedJobResults) return;
 
-    const newResults = selectedJobResults.map((item) => {
-      if (item.id === animalId) {
-        return {
-          ...item,
-          FinalizedCountries: item.FinalizedCountries.filter(
-            (mapping) => mapping.country !== countryName
-          ),
-        };
-      }
-      return item;
-    });
+    const row = selectedJobResults.find((item) => item.id === animalId);
+    if (!row) return;
 
-    setSelectedJobResults(newResults);
-    syncWithBackend(newResults);
+    const updatedFinalizedCountries = row.FinalizedCountries.filter(
+      (mapping) => mapping.country !== countryName
+    );
+
+    setSelectedJobResults((currentRows) =>
+      currentRows.map((item) =>
+        item.id === animalId
+          ? { ...item, FinalizedCountries: updatedFinalizedCountries }
+          : item
+      )
+    );
+    syncRowWithBackend(animalId, { FinalizedCountries: updatedFinalizedCountries });
   };
 
   const handleAddCountry = (country: CountryInfo) => {
-    if (!selectedJobResults || !activeAnimalId) return;
+    if (!activeAnimalId) return;
 
     const selectedAnimal = selectedJobResults.find((animal) => animal.id === activeAnimalId);
+    if (!selectedAnimal) return;
+
     if (
-      selectedAnimal?.FinalizedCountries.some(
+      selectedAnimal.FinalizedCountries.some(
         (mapping) => mapping.country === country.country
       )
     ) {
@@ -389,152 +472,80 @@ export default function Workflow(props: WorkflowProps) {
       return;
     }
 
-    const newResults = selectedJobResults.map((item) => {
-      if (item.id === activeAnimalId) {
-        return {
-          ...item,
-          FinalizedCountries: [
-            ...item.FinalizedCountries,
-            {
-              country: country.country,
-              confidence: 0.95,
-              description: country.description,
-            },
-          ],
-        };
-      }
-      return item;
-    });
+    const updatedFinalizedCountries = [
+      ...selectedAnimal.FinalizedCountries,
+      {
+        country: country.country,
+        confidence: 0.95,
+        description: country.description,
+      },
+    ];
 
-    setSelectedJobResults(newResults);
-    syncWithBackend(newResults);
+    setSelectedJobResults((currentRows) =>
+      currentRows.map((item) =>
+        item.id === activeAnimalId
+          ? { ...item, FinalizedCountries: updatedFinalizedCountries }
+          : item
+      )
+    );
+    syncRowWithBackend(activeAnimalId, { FinalizedCountries: updatedFinalizedCountries });
     closeCountryModal();
   };
 
   const handleSaveGapNote = () => {
-    if (!selectedJobResults || !gapEditorAnimalId) return;
+    if (!gapEditorAnimalId) return;
 
-    const newResults = selectedJobResults.map((item) => {
-      if (item.id === gapEditorAnimalId) {
-        return {
-          ...item,
-          IdentifiedGaps: gapDraft.trim(),
-        };
-      }
-      return item;
-    });
-
-    setSelectedJobResults(newResults);
-    syncWithBackend(newResults);
+    const nextGapValue = gapDraft.trim();
+    setSelectedJobResults((currentRows) =>
+      currentRows.map((item) =>
+        item.id === gapEditorAnimalId ? { ...item, IdentifiedGaps: nextGapValue } : item
+      )
+    );
+    syncRowWithBackend(gapEditorAnimalId, { IdentifiedGaps: nextGapValue });
     closeGapEditor();
   };
 
   const handleCompliantChange = (animalId: string, compliant: string) => {
-    if (!selectedJobResults) return;
-
-    const newResults = selectedJobResults.map((item) => {
-      if (item.id === animalId) {
-        return {
-          ...item,
-          Compliant: compliant,
-        };
-      }
-      return item;
-    });
-
-    setSelectedJobResults(newResults);
-    syncWithBackend(newResults);
-  };
-
-  const handleDownload = () => {
-    if (!selectedJobResults) return;
-
-    const headers = [
-      'Animal',
-      'Animal Description',
-      'Type of Organism',
-      'Recommended Countries',
-      'Finalized Countries',
-      'Compliant',
-      'Identified Gaps',
-      'Interesting Fact',
-    ];
-
-    const csvContent = selectedJobResults.map((row) => {
-      const recommended = row.RecommendedCountries.map((mapping) => mapping.country).join('; ');
-      const finalized = row.FinalizedCountries.map((mapping) => mapping.country).join('; ');
-
-      return [
-        escapeCsv(row.Animal),
-        escapeCsv(row.AnimalDescription),
-        escapeCsv(row.TypeOfOrganism),
-        escapeCsv(recommended),
-        escapeCsv(finalized),
-        escapeCsv(row.Compliant),
-        escapeCsv(row.IdentifiedGaps),
-        escapeCsv(row.InterestingFact),
-      ].join(',');
-    });
-
-    const finalCsv = [headers.join(','), ...csvContent].join('\n');
-    const blob = new Blob([finalCsv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `animal_results_${new Date().getTime()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const filteredResults = selectedJobResults?.filter((row) => {
-    const query = searchTerm.toLowerCase();
-
-    return (
-      row.Animal.toLowerCase().includes(query) ||
-      row.AnimalDescription.toLowerCase().includes(query) ||
-      row.TypeOfOrganism.toLowerCase().includes(query) ||
-      row.InterestingFact.toLowerCase().includes(query) ||
-      row.Compliant.toLowerCase().includes(query) ||
-      row.IdentifiedGaps.toLowerCase().includes(query) ||
-      row.RecommendedCountries.some((mapping) =>
-        mapping.country.toLowerCase().includes(query)
-      ) ||
-      row.FinalizedCountries.some((mapping) => mapping.country.toLowerCase().includes(query))
+    setSelectedJobResults((currentRows) =>
+      currentRows.map((item) =>
+        item.id === animalId ? { ...item, Compliant: compliant } : item
+      )
     );
-  });
+    syncRowWithBackend(animalId, { Compliant: compliant });
+  };
+
+  const handleDownload = async () => {
+    if (!selectedJobId) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/jobs/${selectedJobId}/export`);
+      if (!res.ok) {
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `animal_results_${selectedJobId}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+    }
+  };
 
   const filteredModalCountries = availableCountries.filter((country) =>
     country.country.toLowerCase().includes(modalSearch.toLowerCase())
   );
-  const sortedResults = filteredResults
-    ? animalSortOrder === 'none'
-      ? filteredResults
-      : [...filteredResults].sort((a, b) => {
-          const comparison = a.Animal.localeCompare(b.Animal, undefined, {
-            sensitivity: 'base',
-          });
-          return animalSortOrder === 'asc' ? comparison : -comparison;
-        })
-    : [];
-  const totalResultCount = selectedJobResults?.length ?? 0;
-  const filteredResultCount = sortedResults.length;
   const rowCountLabel = searchTerm
-    ? `${filteredResultCount} / ${totalResultCount} rows`
-    : `${totalResultCount} rows`;
-  const totalResultPages = Math.max(
-    1,
-    Math.ceil(filteredResultCount / resultsPerPage || 0)
-  );
-  const paginatedResults = sortedResults.slice(
-    resultsPage * resultsPerPage,
-    resultsPage * resultsPerPage + resultsPerPage
-  );
-  const resultPageStart = filteredResultCount === 0 ? 0 : resultsPage * resultsPerPage + 1;
-  const resultPageEnd = Math.min(
-    (resultsPage + 1) * resultsPerPage,
-    filteredResultCount
-  );
+    ? `${totalResultCount} / ${fullResultCount} rows`
+    : `${fullResultCount} rows`;
+  const totalResultPages = Math.max(1, Math.ceil(totalResultCount / resultsPerPage || 0));
+  const resultPageStart = totalResultCount === 0 ? 0 : resultsPage * resultsPerPage + 1;
+  const resultPageEnd = Math.min((resultsPage + 1) * resultsPerPage, totalResultCount);
   const totalJobPages = Math.max(1, Math.ceil(jobs.length / JOBS_PER_PAGE));
   const paginatedJobs = jobs.slice(
     jobPage * JOBS_PER_PAGE,
@@ -847,7 +858,7 @@ export default function Workflow(props: WorkflowProps) {
           </div>
 
           <div className="p-5">
-            {!selectedJobResults ? (
+            {isLoadingResults && selectedJobResults.length === 0 ? (
               <div className="py-16 flex flex-col items-center justify-center text-slate-400">
                 <RefreshCcw className="w-8 h-8 animate-spin mb-4" />
                 <p className="text-sm font-medium">Loading job results...</p>
@@ -922,136 +933,147 @@ export default function Workflow(props: WorkflowProps) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {paginatedResults?.map((item) => (
-                          <tr
-                            key={item.id}
-                            className="group even:bg-slate-50/20 hover:bg-slate-50/60 transition-colors align-top"
-                          >
-                            <td className="px-3 py-3 align-top border-r border-slate-100">
-                              <div className={`${DETAIL_CELL_HEIGHT_CLASS} flex items-center`}>
-                                <span className="font-bold text-slate-800 text-xs">
-                                  {item.Animal}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-3 py-3 align-top border-r border-slate-100">
-                              <ScrollableTextCell text={item.AnimalDescription} />
-                            </td>
-                            <td className="px-3 py-3 align-top border-r border-slate-100">
-                              <div className={`${DETAIL_CELL_HEIGHT_CLASS} flex items-center`}>
-                                <span className="inline-flex rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-600">
-                                  {item.TypeOfOrganism || '--'}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-3 py-3 align-top border-r border-slate-100">
-                              <div className={`${DETAIL_CELL_HEIGHT_CLASS} overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent`}>
-                                <div className="flex flex-wrap gap-1.5 items-start content-start">
-                                {item.RecommendedCountries.map((mapping, idx) => (
-                                  <CountryChip
-                                    key={`${mapping.country}-${idx}`}
-                                    mapping={mapping}
-                                    onMouseEnter={(e) =>
-                                      showTooltip(e, 'Country Context', mapping.description)
-                                    }
-                                    onMouseLeave={() => setTooltip(null)}
-                                  />
-                                ))}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-3 py-3 align-top border-r border-slate-100">
-                              <div className={`${DETAIL_CELL_HEIGHT_CLASS} overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent`}>
-                                <div className="flex flex-wrap gap-1.5 items-start content-start">
-                                {item.FinalizedCountries.map((mapping, idx) => (
-                                  <CountryChip
-                                    key={`${mapping.country}-${idx}`}
-                                    mapping={mapping}
-                                    removable
-                                    onMouseEnter={(e) =>
-                                      showTooltip(e, 'Country Context', mapping.description)
-                                    }
-                                    onMouseLeave={() => setTooltip(null)}
-                                    onRemove={(e) =>
-                                      handleRemoveFinalizedCountry(e, item.id, mapping.country)
-                                    }
-                                  />
-                                ))}
-
-                                <button
-                                  onClick={() => {
-                                    setActiveAnimalId(item.id);
-                                    setIsModalOpen(true);
-                                  }}
-                                  className="flex items-center justify-center gap-1 px-1.5 py-1 rounded-md border border-dashed border-slate-300 text-slate-400 hover:border-mongo-sage hover:text-mongo-sage hover:bg-mongo-mist/10 transition-all group shadow-sm"
-                                >
-                                  <Plus className="w-2.5 h-2.5 group-hover:scale-125 transition-transform" />
-                                  <span className="text-[9px] font-bold uppercase tracking-wide">
-                                    Add
-                                  </span>
-                                </button>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-3 py-3 align-top border-r border-slate-100">
-                              <div className={`${DETAIL_CELL_HEIGHT_CLASS} flex items-center`}>
-                                <select
-                                  value={item.Compliant}
-                                  onChange={(e) =>
-                                    handleCompliantChange(item.id, e.target.value)
-                                  }
-                                  className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-mongo-sage/20"
-                                >
-                                  {COMPLIANCE_OPTIONS.map((option) => (
-                                    <option key={option} value={option}>
-                                      {option}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            </td>
-                            <td className="px-3 py-3 align-top border-r border-slate-100">
-                              <div className={`${DETAIL_CELL_HEIGHT_CLASS} flex items-center`}>
-                                {item.IdentifiedGaps ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => openGapEditor(item.id, item.IdentifiedGaps)}
-                                    className="w-full rounded-lg px-0 py-0 text-left hover:bg-slate-50/60 transition-colors"
-                                  >
-                                    <p className="text-[11px] leading-5 text-slate-600 whitespace-pre-wrap">
-                                      {item.IdentifiedGaps}
-                                    </p>
-                                  </button>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => openGapEditor(item.id, item.IdentifiedGaps)}
-                                    className="inline-flex items-center justify-center gap-1 rounded-md border border-dashed border-slate-300 px-2 py-1 text-slate-400 hover:border-mongo-sage hover:text-mongo-sage hover:bg-mongo-mist/10 transition-all"
-                                  >
-                                    <Plus className="w-3 h-3" />
-                                    <span className="text-[9px] font-bold uppercase tracking-wide">
-                                      Add
-                                    </span>
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-3 py-3 align-top">
-                              <ScrollableTextCell text={item.InterestingFact} />
+                        {selectedJobResults.length === 0 ? (
+                          <tr>
+                            <td
+                              colSpan={8}
+                              className="px-4 py-16 text-center text-slate-400 text-sm"
+                            >
+                              No rows match the current filters.
                             </td>
                           </tr>
-                        ))}
+                        ) : (
+                          selectedJobResults.map((item) => (
+                            <tr
+                              key={item.id}
+                              className="group even:bg-slate-50/20 hover:bg-slate-50/60 transition-colors align-top"
+                            >
+                              <td className="px-3 py-3 align-top border-r border-slate-100">
+                                <div className={`${DETAIL_CELL_HEIGHT_CLASS} flex items-center`}>
+                                  <span className="font-bold text-slate-800 text-xs">
+                                    {item.Animal}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 align-top border-r border-slate-100">
+                                <ScrollableTextCell text={item.AnimalDescription} />
+                              </td>
+                              <td className="px-3 py-3 align-top border-r border-slate-100">
+                                <div className={`${DETAIL_CELL_HEIGHT_CLASS} flex items-center`}>
+                                  <span className="inline-flex rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-600">
+                                    {item.TypeOfOrganism || '--'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 align-top border-r border-slate-100">
+                                <div className={`${DETAIL_CELL_HEIGHT_CLASS} overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent`}>
+                                  <div className="flex flex-wrap gap-1.5 items-start content-start">
+                                    {item.RecommendedCountries.map((mapping, idx) => (
+                                      <CountryChip
+                                        key={`${mapping.country}-${idx}`}
+                                        mapping={mapping}
+                                        onMouseEnter={(e) =>
+                                          showTooltip(e, 'Country Context', mapping.description)
+                                        }
+                                        onMouseLeave={() => setTooltip(null)}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 align-top border-r border-slate-100">
+                                <div className={`${DETAIL_CELL_HEIGHT_CLASS} overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent`}>
+                                  <div className="flex flex-wrap gap-1.5 items-start content-start">
+                                    {item.FinalizedCountries.map((mapping, idx) => (
+                                      <CountryChip
+                                        key={`${mapping.country}-${idx}`}
+                                        mapping={mapping}
+                                        removable
+                                        onMouseEnter={(e) =>
+                                          showTooltip(e, 'Country Context', mapping.description)
+                                        }
+                                        onMouseLeave={() => setTooltip(null)}
+                                        onRemove={(e) =>
+                                          handleRemoveFinalizedCountry(e, item.id, mapping.country)
+                                        }
+                                      />
+                                    ))}
+
+                                    <button
+                                      onClick={() => {
+                                        setActiveAnimalId(item.id);
+                                        setIsModalOpen(true);
+                                      }}
+                                      className="flex items-center justify-center gap-1 px-1.5 py-1 rounded-md border border-dashed border-slate-300 text-slate-400 hover:border-mongo-sage hover:text-mongo-sage hover:bg-mongo-mist/10 transition-all group shadow-sm"
+                                    >
+                                      <Plus className="w-2.5 h-2.5 group-hover:scale-125 transition-transform" />
+                                      <span className="text-[9px] font-bold uppercase tracking-wide">
+                                        Add
+                                      </span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 align-top border-r border-slate-100">
+                                <div className={`${DETAIL_CELL_HEIGHT_CLASS} flex items-center`}>
+                                  <select
+                                    value={item.Compliant}
+                                    onChange={(e) =>
+                                      handleCompliantChange(item.id, e.target.value)
+                                    }
+                                    className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-mongo-sage/20"
+                                  >
+                                    {COMPLIANCE_OPTIONS.map((option) => (
+                                      <option key={option} value={option}>
+                                        {option}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 align-top border-r border-slate-100">
+                                <div className={`${DETAIL_CELL_HEIGHT_CLASS} flex items-center`}>
+                                  {item.IdentifiedGaps ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => openGapEditor(item.id, item.IdentifiedGaps)}
+                                      className="w-full rounded-lg px-0 py-0 text-left hover:bg-slate-50/60 transition-colors"
+                                    >
+                                      <p className="text-[11px] leading-5 text-slate-600 whitespace-pre-wrap">
+                                        {item.IdentifiedGaps}
+                                      </p>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => openGapEditor(item.id, item.IdentifiedGaps)}
+                                      className="inline-flex items-center justify-center gap-1 rounded-md border border-dashed border-slate-300 px-2 py-1 text-slate-400 hover:border-mongo-sage hover:text-mongo-sage hover:bg-mongo-mist/10 transition-all"
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                      <span className="text-[9px] font-bold uppercase tracking-wide">
+                                        Add
+                                      </span>
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 align-top">
+                                <ScrollableTextCell text={item.InterestingFact} />
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
-                  {filteredResultCount > 0 && (
+                  {totalResultCount > 0 && (
                     <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:items-center sm:gap-4">
                         <span>
                           <span className="font-semibold text-slate-700">
                             Showing {resultPageStart}-{resultPageEnd}
                           </span>{' '}
-                          of {filteredResultCount} rows
+                          of {totalResultCount} rows
                         </span>
                         <label className="flex items-center gap-2">
                           <span>Rows per page</span>
