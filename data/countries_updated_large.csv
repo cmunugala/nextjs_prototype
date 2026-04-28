@@ -1,0 +1,501 @@
+Country,Description
+Kenya 1,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 1,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 1,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 1,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 1,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 1,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 1,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 1,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 1,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 1,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 1,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 1,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 1,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 1,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 1,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 1,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 1,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 1,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 1,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 1,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 1,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 1,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 1,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 1,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 1,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 1,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 1,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 1,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 1,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 1,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 1,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 1,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 1,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 1,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 1,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 1,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 1,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 1,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 1,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 1,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 1,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 1,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 1,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 1,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 1,A South American country known for its verdant interior and beach-lined coast.
+Fiji 1,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 1,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 1,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 1,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 1,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 2,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 2,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 2,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 2,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 2,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 2,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 2,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 2,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 2,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 2,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 2,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 2,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 2,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 2,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 2,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 2,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 2,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 2,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 2,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 2,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 2,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 2,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 2,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 2,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 2,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 2,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 2,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 2,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 2,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 2,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 2,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 2,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 2,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 2,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 2,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 2,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 2,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 2,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 2,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 2,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 2,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 2,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 2,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 2,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 2,A South American country known for its verdant interior and beach-lined coast.
+Fiji 2,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 2,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 2,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 2,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 2,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 3,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 3,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 3,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 3,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 3,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 3,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 3,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 3,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 3,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 3,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 3,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 3,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 3,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 3,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 3,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 3,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 3,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 3,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 3,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 3,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 3,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 3,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 3,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 3,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 3,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 3,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 3,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 3,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 3,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 3,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 3,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 3,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 3,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 3,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 3,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 3,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 3,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 3,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 3,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 3,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 3,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 3,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 3,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 3,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 3,A South American country known for its verdant interior and beach-lined coast.
+Fiji 3,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 3,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 3,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 3,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 3,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 4,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 4,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 4,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 4,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 4,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 4,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 4,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 4,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 4,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 4,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 4,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 4,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 4,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 4,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 4,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 4,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 4,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 4,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 4,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 4,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 4,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 4,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 4,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 4,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 4,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 4,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 4,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 4,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 4,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 4,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 4,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 4,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 4,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 4,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 4,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 4,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 4,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 4,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 4,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 4,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 4,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 4,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 4,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 4,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 4,A South American country known for its verdant interior and beach-lined coast.
+Fiji 4,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 4,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 4,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 4,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 4,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 5,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 5,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 5,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 5,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 5,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 5,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 5,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 5,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 5,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 5,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 5,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 5,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 5,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 5,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 5,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 5,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 5,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 5,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 5,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 5,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 5,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 5,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 5,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 5,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 5,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 5,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 5,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 5,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 5,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 5,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 5,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 5,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 5,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 5,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 5,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 5,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 5,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 5,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 5,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 5,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 5,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 5,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 5,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 5,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 5,A South American country known for its verdant interior and beach-lined coast.
+Fiji 5,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 5,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 5,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 5,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 5,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 6,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 6,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 6,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 6,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 6,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 6,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 6,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 6,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 6,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 6,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 6,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 6,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 6,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 6,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 6,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 6,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 6,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 6,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 6,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 6,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 6,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 6,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 6,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 6,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 6,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 6,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 6,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 6,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 6,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 6,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 6,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 6,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 6,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 6,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 6,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 6,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 6,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 6,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 6,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 6,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 6,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 6,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 6,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 6,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 6,A South American country known for its verdant interior and beach-lined coast.
+Fiji 6,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 6,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 6,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 6,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 6,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 7,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 7,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 7,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 7,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 7,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 7,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 7,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 7,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 7,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 7,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 7,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 7,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 7,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 7,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 7,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 7,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 7,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 7,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 7,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 7,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 7,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 7,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 7,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 7,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 7,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 7,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 7,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 7,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 7,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 7,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 7,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 7,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 7,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 7,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 7,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 7,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 7,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 7,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 7,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 7,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 7,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 7,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 7,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 7,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 7,A South American country known for its verdant interior and beach-lined coast.
+Fiji 7,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 7,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 7,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 7,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 7,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 8,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 8,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 8,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 8,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 8,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 8,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 8,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 8,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 8,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 8,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 8,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 8,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 8,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 8,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 8,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 8,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 8,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 8,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 8,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 8,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 8,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 8,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 8,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 8,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 8,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 8,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 8,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 8,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 8,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 8,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 8,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 8,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 8,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 8,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 8,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 8,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 8,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 8,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 8,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 8,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 8,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 8,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 8,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 8,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 8,A South American country known for its verdant interior and beach-lined coast.
+Fiji 8,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 8,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 8,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 8,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 8,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 9,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 9,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 9,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 9,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 9,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 9,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 9,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 9,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 9,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 9,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 9,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 9,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 9,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 9,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 9,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 9,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 9,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 9,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 9,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 9,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 9,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 9,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 9,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 9,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 9,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 9,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 9,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 9,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 9,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 9,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 9,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 9,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 9,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 9,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 9,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 9,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 9,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 9,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 9,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 9,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 9,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 9,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 9,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 9,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 9,A South American country known for its verdant interior and beach-lined coast.
+Fiji 9,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 9,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 9,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 9,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 9,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."
+Kenya 10,"A country in East Africa with coastline on the Indian Ocean, famous for the Maasai Mara."
+India 10,A South Asian nation with diverse terrain – from Himalayan peaks to Indian Ocean coastline.
+Australia 10,"A country and continent surrounded by the Indian and Pacific oceans, known for its outback."
+China 10,"A populous nation in East Asia whose vast landscape encompasses grassland, desert, and mountains."
+Antarctica 10,"Earth's southernmost continent, containing the geographic South Pole and mostly ice."
+Canada 10,"The second-largest country by land area, known for its vast wilderness and cold climate."
+Brazil 10,"South America’s largest country, home to much of the Amazon River basin and rainforest."
+South Africa 10,"A country on the southernmost tip of the African continent, with diverse ecosystems."
+USA 10,"A country of 50 states covering a vast swath of North America, from the Atlantic to the Pacific."
+Thailand 10,"A Southeast Asian country known for tropical beaches, opulent royal palaces, and ancient ruins."
+Norway 10,"A Scandinavian country encompassing mountains, glaciers and deep coastal fjords."
+Japan 10,"An island nation in the Pacific Ocean with dense cities, imperial palaces, and mountainous parks."
+Mexico 10,"A country between the U.S. and Central America, known for its Pacific and Gulf of Mexico beaches."
+Egypt 10,"A country linking northeast Africa with the Middle East, home to the Great Pyramids."
+France 10,"A Western European country with medieval cities, alpine villages and Mediterranean beaches."
+Germany 10,"A Western European country with a landscape of forests, rivers, mountain ranges and North Sea beaches."
+Italy 10,"A Mediterranean country with a vast coastline, has left a powerful mark on Western culture."
+Spain 10,"A country on Europe’s Iberian Peninsula, includes 17 autonomous regions with diverse geography."
+United Kingdom 10,"An island nation in northwestern Europe made up of England, Scotland, Wales and Northern Ireland."
+Russia 10,"The world's largest nation by land area, spanning Eastern Europe and Northern Asia."
+Argentina 10,A massive South American nation with terrain encompassing Andes mountains and Pampas grassland.
+Chile 10,"A long, narrow country stretching along South America's western edge, with over 6,000km of coastline."
+Peru 10,A country in South America that's home to a section of Amazon rainforest and Machu Picchu.
+Colombia 10,"A country at the northern tip of South America, with landscape of rainforests and Andes mountains."
+Nigeria 10,"An African country on the Gulf of Guinea, has many natural landmarks and wildlife reserves."
+Ethiopia 10,"A landlocked country on the Horn of Africa, split by the Great Rift Valley."
+Morocco 10,A North African country bordering the Atlantic Ocean and Mediterranean Sea.
+Tanzania 10,"An East African country known for its vast wilderness areas, including the Serengeti."
+Vietnam 10,A Southeast Asian country on the South China Sea known for its beaches and bustling cities.
+Indonesia 10,"A country in Southeast Asia and Oceania, between the Indian and Pacific oceans."
+South Korea 10,"An East Asian nation on the southern half of the Korean Peninsula, shares a border with North Korea."
+Turkey 10,A nation straddling eastern Europe and western Asia with cultural connections to ancient empires.
+Greece 10,A country in southeastern Europe with thousands of islands throughout the Aegean and Ionian seas.
+Switzerland 10,"A mountainous Central European country, home to numerous lakes, villages and the high Alps."
+Sweden 10,A Scandinavian nation with thousands of coastal islands and inland lakes.
+New Zealand 10,"An island country in the southwestern Pacific Ocean, known for its volcanoes and glaciation."
+Madagascar 10,"A huge island nation off the southeast coast of Africa, home to unique wildlife like lemurs."
+Iceland 10,"A Nordic island nation, defined by its dramatic landscape with volcanoes, geysers and hot springs."
+Greenland 10,"The world's largest island, located between the Arctic and Atlantic oceans."
+Costa Rica 10,"A rugged, rainforested Central American country with coastlines on the Caribbean and Pacific."
+Panama 10,"A country on the isthmus linking Central and South America, home to the famous Panama Canal."
+Ecuador 10,"A country straddling the equator on South America’s west coast, with diverse landscapes."
+Bolivia 10,"A country in central South America, with a varied terrain spanning Andes Mountains and Atacama Desert."
+Paraguay 10,"A landlocked country between Argentina, Brazil and Bolivia, with large swaths of swampland."
+Uruguay 10,A South American country known for its verdant interior and beach-lined coast.
+Fiji 10,"An archipelago of more than 300 islands in the South Pacific, known for rugged landscapes."
+Papua New Guinea 10,A country in Oceania that occupies the eastern half of the island of New Guinea.
+Mongolia 10,"A nation bordered by China and Russia, known for vast, rugged expanses and nomadic culture."
+Kazakhstan 10,"A Central Asian country and former Soviet republic, extends from the Caspian Sea to the Altai Mountains."
+Nepal 10,"A country in South Asia between China and India, home to eight of the world's ten tallest peaks."

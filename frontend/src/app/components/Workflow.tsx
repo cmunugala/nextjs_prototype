@@ -153,6 +153,7 @@ export default function Workflow(props: WorkflowProps) {
   const [resultsPerPage, setResultsPerPage] = useState(DEFAULT_RESULTS_PER_PAGE);
   const [totalResultCount, setTotalResultCount] = useState(0);
   const [fullResultCount, setFullResultCount] = useState(0);
+  const [hasLoadedDetailResults, setHasLoadedDetailResults] = useState(false);
   const [isLoadingResults, setIsLoadingResults] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -231,6 +232,7 @@ export default function Workflow(props: WorkflowProps) {
       setAvailableCountries(Array.isArray(data.available_countries) ? data.available_countries : []);
       setTotalResultCount(data.total_count ?? 0);
       setFullResultCount(data.full_total_count ?? 0);
+      setHasLoadedDetailResults(true);
       return true;
     },
     []
@@ -342,6 +344,7 @@ export default function Workflow(props: WorkflowProps) {
     setSearchTerm('');
     setResultsPage(0);
     setAnimalSortOrder('none');
+    setHasLoadedDetailResults(false);
     setTooltip(null);
     closeCountryModal();
     closeGapEditor();
@@ -858,7 +861,7 @@ export default function Workflow(props: WorkflowProps) {
           </div>
 
           <div className="p-5">
-            {isLoadingResults && selectedJobResults.length === 0 ? (
+            {isLoadingResults && !hasLoadedDetailResults ? (
               <div className="py-16 flex flex-col items-center justify-center text-slate-400">
                 <RefreshCcw className="w-8 h-8 animate-spin mb-4" />
                 <p className="text-sm font-medium">Loading job results...</p>
